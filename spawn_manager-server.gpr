@@ -1,0 +1,21 @@
+with "spawn_manager.gpr";
+
+project Spawn_Manager.Server is
+
+   for Source_Dirs use ("src");
+   for Object_Dir use ".obj/" & project'name & "/" & spawn_manager.BUILD;
+   for Exec_Dir use "bin";
+   for Main use ("spawn_manager-server-main.adb");
+
+   package Builder is
+      for Default_Switches ("ada") use Spawn_Manager.Compiler'Default_Switches ("ada");
+      For Executable("spawn_manager-server-main.adb") use "gnat-os_lib-spawn-manager-server";
+   end Builder;
+
+   package Compiler renames Spawn_Manager.Compiler;
+
+   package Binder renames Spawn_Manager.Binder;
+   for Source_Files use ("spawn_manager-server.adb", "spawn_manager-server.ads", "spawn_manager-server-main.adb");
+
+end Spawn_Manager.Server;
+

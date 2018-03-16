@@ -1,0 +1,17 @@
+with "spawn_manager.gpr";
+with "spawn_manager-server.gpr";
+project Spawn_Manager.tests is
+
+   for Source_Dirs use ("tests");
+   for Object_Dir use ".obj/" & project'name & "/" & spawn_manager.BUILD;
+   for Exec_Dir use "bin";
+   for Main use ("spawn_manager-tests-main.adb");
+
+   package Builder  renames Spawn_Manager.Builder;
+   package compiler is
+      for Default_Switches("Ada") use Spawn_Manager.compiler'Default_Switches("Ada") &
+      ("-gnateDVERSION=""" & Spawn_Manager.Version & """");
+   end Compiler;
+   package Binder  renames Spawn_Manager.Binder;
+end Spawn_Manager.tests;
+
