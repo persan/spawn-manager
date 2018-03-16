@@ -24,7 +24,7 @@ library project Spawn_Manager is
    end Builder;
 
    package Compiler is
-      for Default_Switches ("ada") use
+      for Switches ("ada") use
         ("-gnatwa",
          "-gnat12",
          "-gnaty",

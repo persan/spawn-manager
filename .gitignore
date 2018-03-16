@@ -3,4 +3,11 @@
 
 # Ada Library Information
 *.ali
-Makefile.config
+
+
+*.config
+.obj/
+bin/
+lib/
+test.out
+test_log.txt
