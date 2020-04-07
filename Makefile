@@ -63,7 +63,7 @@ tag:compile test
 	grep "`bin/helper -v`-`date +%Y%m%d`" README.md >/dev/null
 	git tag  "`bin/helper -v`-`date +%Y%m%d`"
 	git push
-	git push --all
+	git push --tag
 
 clean:
 	git clean -xdf
