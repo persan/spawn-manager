@@ -4,15 +4,15 @@
 PROJECT=spawn_manager
 
 _docdir=${PREFIX}/share/${PROJECT}/doc
+all:compile test
+
 help:
 	@echo "help       Print this text"
 	@echo "compile    Compile the project"
-	@echo "setup      Configure the Project"
 	@echo "variables  Print the configuration"
 	@echo "install    Installs the project"
 	@echo "tag        Makes a tag and a .tar-ball for release"
 
-all:compile test
 
 compile:
 	gprbuild -p -P${PROJECT}-server.gpr -XLIBRARY_TYPE=static
@@ -20,9 +20,6 @@ compile:
 	gprbuild -p -Pbin/${PROJECT}-helper.gpr
 
 
-setup:
-	rm -f Makefile.config
-	make Makefile.config
 
 
 variables:
@@ -43,9 +40,6 @@ uninstall:
 	gprinstall -u -f -p -P${PROJECT}-server.gpr  --build-var=LIBRARY_TYPE --build-name=static --prefix=${DESTDIR}${PREFIX} --mode=usage
 	gprinstall -u -f -p -P${PROJECT}.gpr  --build-var=LIBRARY_TYPE --build-name=relocatable --prefix=${DESTDIR}${PREFIX}
 	gprinstall -u -f -p -P${PROJECT}.gpr  --build-var=LIBRARY_TYPE --build-name=static   --prefix=${DESTDIR}${PREFIX}
-
-clean:
-	rm -rf .obj bin lib
 
 test:
 	${MAKE} -C tests
