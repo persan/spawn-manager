@@ -13,9 +13,9 @@ b__*
 *.so
 *.so.*
 *.a
-*-main
+*main
 helper
-*-loc.xml
+*loc.xml
 *-server
 
 *.config

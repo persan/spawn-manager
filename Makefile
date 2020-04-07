@@ -29,21 +29,24 @@ variables:
 
 install:
 	rm _ -rf
-	gprinstall -a -f -p -P${PROJECT}-server.gpr  --build-var=LIBRARY_TYPE --build-name=static      -XLIBRARY_TYPE=static      --prefix=${DESTDIR}${PREFIX} --mode=usage
-	gprinstall -a -f -p -P${PROJECT}.gpr         --build-var=LIBRARY_TYPE --build-name=static      -XLIBRARY_TYPE=static      --prefix=${DESTDIR}${PREFIX}
-	gprinstall -a -f -p -P${PROJECT}.gpr         --build-var=LIBRARY_TYPE --build-name=relocatable -XLIBRARY_TYPE=relocatable --prefix=${DESTDIR}${PREFIX}
+	gprinstall -a -f -p -P${PROJECT}-server.gpr  --build-name=static      -XLIBRARY_TYPE=static      --prefix=${DESTDIR}${PREFIX} --mode=usage
+	gprinstall -a -f -p -P${PROJECT}.gpr         --build-name=static      -XLIBRARY_TYPE=static      --prefix=${DESTDIR}${PREFIX}
+	gprinstall -a -f -p -P${PROJECT}.gpr         --build-name=relocatable -XLIBRARY_TYPE=relocatable --prefix=${DESTDIR}${PREFIX}
 	mkdir -p ${DESTDIR}/${_docdir}
-	cp ReadMe ${DESTDIR}/${_docdir}
-
+	cp README.md ${DESTDIR}/${_docdir}
 
 uninstall:
-	gprinstall -u -f -p -P${PROJECT}-server.gpr  --build-var=LIBRARY_TYPE --build-name=static --prefix=${DESTDIR}${PREFIX} --mode=usage
-	gprinstall -u -f -p -P${PROJECT}.gpr  --build-var=LIBRARY_TYPE --build-name=relocatable --prefix=${DESTDIR}${PREFIX}
-	gprinstall -u -f -p -P${PROJECT}.gpr  --build-var=LIBRARY_TYPE --build-name=static   --prefix=${DESTDIR}${PREFIX}
+	-gprinstall -P${PROJECT}-server.gpr  --uninstall  -XLIBRARY_TYPE=static      --prefix=${DESTDIR}${PREFIX} --mode=usage
+	-gprinstall -P${PROJECT}.gpr         --uninstall  -XLIBRARY_TYPE=static      --prefix=${DESTDIR}${PREFIX}
+	-gprinstall -P${PROJECT}.gpr         --uninstall  -XLIBRARY_TYPE=relocatable --prefix=${DESTDIR}${PREFIX}
+	-rm -rf ${DESTDIR}/${_docdir}
+
 
 test:
 	${MAKE} -C tests
 
+test-i:
+	${MAKE} -C tests installation
 
 Makefile.config:Makefile
 	@echo "PREFIX=$(shell dirname $(shell dirname $(shell which gnatls)))"   >$@

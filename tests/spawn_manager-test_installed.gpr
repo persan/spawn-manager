@@ -1,0 +1,12 @@
+with "spawn_manager.gpr";
+
+project Spawn_Manager.Test_Installed is
+
+   type Build_Kind is
+     ("static", "relocatable");
+   for Source_Dirs use ("src/**");
+   for Object_Dir use ".obj/" & project'Name;
+   for Main use ("main.adb");
+   for Excluded_Source_Files use ("spawn_manager-tests.ads", "spawn_manager-tests-main.adb");
+end Spawn_Manager.Test_Installed;
+

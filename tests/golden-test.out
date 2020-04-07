@@ -2,6 +2,7 @@ bin
 golden-test.out
 Makefile
 results.txt
+spawn_manager-test_installed.gpr
 spawn_manager-tests.gpr
 src
 test.out
