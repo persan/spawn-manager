@@ -17,6 +17,8 @@ all:compile test
 compile:
 	gprbuild -p -P${PROJECT}-server.gpr -XLIBRARY_TYPE=static
 	gprbuild -p -P${PROJECT}.gpr        -XLIBRARY_TYPE=relocatable
+	gprbuild -p -Pbin/${PROJECT}-helper.gpr
+
 
 setup:
 	rm -f Makefile.config
@@ -25,9 +27,6 @@ setup:
 
 variables:
 	@echo "PREFIX=${PREFIX}"
-	@echo "URL=${URL}"
-	@echo "TAGS=${TAGS}"
-	@echo "TAG=${TAG}"
 	@echo "PATH=${PATH}"
 
 
@@ -49,27 +48,25 @@ clean:
 	rm -rf .obj bin lib
 
 test:
-	gprbuild -p ${PROJECT}-tests.gpr -XLIBRARY_TYPE=static
-	bin/${PROJECT}-tests-main | tee test_log.txt
+	${MAKE} -C tests
 
 
 Makefile.config:Makefile
 	@echo "PREFIX=$(shell dirname $(shell dirname $(shell which gnatls)))"   >$@
-	@echo "URL=$(shell svn info . | grep -e "^URL" | cut -f 2 -d " ")"      >>$@ 2>/dev/null
-	@echo "TAGS=$(dir $(shell svn info . | grep -e "^URL" | cut -f 2 -d " "))tags/"    >>$@ 2>/dev/null
+	@echo "export PATH=${CURDIR}/bin:${PATH}" >>$@
 	@echo "TAG=$(shell ./version-helper.py)"  >>$@
-	@echo "export PATH:=\$${PREFIX}/bin:\$${PATH}" >>$@
 
-tag:
-	rm -rf ${PROJECT}-src-${TAG}
-	if [[ -n  "$(shell svn stat .)" ]] ; then echo "Direcory not clean"; exit -1 ; fi
-	if [[ -z "${MSG}" ]] ; then  echo "no commit message"; exit -1; fi
-	svn cp ${URL} ${TAGS}${TAG} "-m${MSG}"
-	svn export ${TAGS}${TAG} ${PROJECT}-src-${TAG}
-	#svn export . ${PROJECT}-src-${TAG}
-	#${MAKE} -C ${PROJECT}-src-${TAG} all
-	tar -czf ${PROJECT}-src-${TAG}.tgz ${PROJECT}-src-${TAG}
-	rm -rf ${PROJECT}-src-${TAG}
+tag:compile test
+	@if [[ -n "`git status --porcelain`" ]] ; then\
+		echo "Folder is not clean";\
+		git status;\
+		exit 1;\
+	fi
+	bin/helper
+	grep "`bin/helper -v`-`date +%Y%m%d`" README.md >/dev/null
+	git tag  "`bin/helper -v`-`date +%Y%m%d`"
+	git push
+	git push --all
 
-dist:
-	curl -F project=devenv  -F build=release -F os=source -F arch=src http://saabworks/upload.php -F artefact=@${PROJECT}-src-${TAG}.tgz
+clean:
+	git clean -xdf

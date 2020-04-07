@@ -1,0 +1,7 @@
+bin
+golden-test.out
+Makefile
+results.txt
+spawn_manager-tests.gpr
+src
+test.out

@@ -1,26 +1,26 @@
 
 library project Spawn_Manager is
 
-   Version := "1.2.0";
+   Version := "1.2.1";
 
    type BUILD_KIND is ("static", "relocatable");
 
-   BUILD : BUILD_KIND := external("LIBRARY_TYPE", "static");
+   BUILD : BUILD_KIND := external ("LIBRARY_TYPE", "static");
 
    So_Ext := ".so";
 
    for Library_Name use "gnat_os_lib_spawn_manager";
    for Library_Kind use BUILD;
    for Library_Dir  use "lib/" & BUILD;
-   for Library_Version use "lib" & Project'Library_Name & So_Ext & "." & Version;
+   for Library_Version use "lib" & project'Library_Name & So_Ext & "." & Version;
 
    for Source_Dirs use ("src");
-   for Object_Dir use ".obj/" & project'name & "/" & BUILD;
+   for Object_Dir use ".obj/" & project'Name & "/" & BUILD;
 
    for Source_Files use ("spawn_manager.adb", "spawn_manager.ads", "spawn_manager-client.adb", "spawn_manager-client.ads");
 
    package Builder is
-      for Default_Switches ("ada") use ("-s","-k", "-j0");
+      for Default_Switches ("ada") use ("-s", "-k", "-j0");
    end Builder;
 
    package Compiler is
@@ -46,7 +46,7 @@ library project Spawn_Manager is
    case BUILD is
       when "relocatable" =>
          for Library_Interface use ("spawn_manager", "spawn_manager.client");
-         for Library_auto_init use "true";
+         for Library_Auto_Init use "true";
       when "static" =>
          null;
    end case;

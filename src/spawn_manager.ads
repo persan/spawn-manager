@@ -7,7 +7,7 @@ private with Interfaces;
 package Spawn_Manager is
 --  This package provides tasksafe variants of the GNAT.OS_Lib Spawn routines.
 
-   Version : constant String := "1.2.0";
+   Version : constant String := "1.2.1";
 
    Default_Server_Name : aliased constant String := "gnat-os_lib-spawn-manager-server";
 

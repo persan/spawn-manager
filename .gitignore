@@ -3,11 +3,22 @@
 
 # Ada Library Information
 *.ali
-
+messages.txt
+*stderr
+*stdout
+*.cswi
+*.bexch
+*.lexch
+b__*
+*.so
+*.so.*
+*.a
+*-main
+helper
+*-loc.xml
+*-server
 
 *.config
-.obj/
-bin/
-lib/
 test.out
 test_log.txt
+.#*#
