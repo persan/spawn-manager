@@ -3,7 +3,7 @@
 This component makes it possible to spawn subprocesses in tasking programs.
 
 # History
-### Version: 1.2.1-2020040?
+### Version: 1.2.1-20200407
 * Restructure for github
 * Update installer for moder gprinstall
 ### Version: 1.2.0:
