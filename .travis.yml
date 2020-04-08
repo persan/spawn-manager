@@ -1,0 +1,6 @@
+os:
+ - linux
+dist: bionic
+language:c
+before_install:
+ - sudo apt-get -y install gprbuild gnat
