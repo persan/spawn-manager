@@ -5,7 +5,7 @@ with Spawn_Manager.Client; use Spawn_Manager.Client;
 with GNAT.Source_Info;
 procedure Spawn_Manager.Tests.Main is
    Args         : GNAT.OS_Lib.Argument_List (1 .. 1);
-   Arg2         : GNAT.OS_Lib.Argument_List (1 .. 0);
+   Args2        : GNAT.OS_Lib.Argument_List (1 .. 1);
    Ls           : GNAT.OS_Lib.String_Access;
    Proj_Version : constant String := $VERSION;
    Ok           : Boolean := False;
@@ -18,8 +18,10 @@ begin
       raise Program_Error with "Version missmatch: Proj_Version=" & Proj_Version & ", Version=" & Version & ".";
    end if;
    pragma Warnings (On);
-   Ls := GNAT.OS_Lib.Locate_Exec_On_Path ("ls");
-   Args (1) := new String'("-l");
+   Ls := GNAT.OS_Lib.Locate_Exec_On_Path ("cat");
+   Args (1) := new String'("testdata.input");
+   Args2 (1) := new String'("<Erronous-file>");
+
    Put_Line (GNAT.Source_Info.Source_Location);
    declare
       Return_Code  : Integer;
@@ -31,14 +33,14 @@ begin
       Put_Line (GNAT.Source_Info.Source_Location);
       Client.Spawn (Ls.all, Args, Success);
       Put_Line (GNAT.Source_Info.Source_Location);
-      Put_Line ("-----< Success:" & Success'Img & " >--------------"& GNAT.Source_Info.Source_Location);
+      Put_Line (GNAT.Source_Info.Source_Location & ": Success:" & Success'Img);
       Ok := Success;
 
-      Return_Code := Client.Spawn (Ls.all, Arg2);
-      Put_Line ("-----< Return_Code:" & Return_Code'Img & " >--------------"& GNAT.Source_Info.Source_Location);
+      Return_Code := Client.Spawn (Ls.all, Args2);
+      Put_Line (GNAT.Source_Info.Source_Location & ": Return_Code:" & Return_Code'Img);
       Ok := Ok or (Return_Code = 0);
 
-      Client.Spawn (Ls.all, Arg2, "test.out", Success, Return_Code);
+      Client.Spawn (Ls.all, Args, "test.out", Success, Return_Code);
       declare
          F : Ada.Text_IO.File_Type;
       begin
@@ -47,8 +49,8 @@ begin
             Put_Line ("!" & Get_Line (F));
          end loop;
       end;
-      Put_Line ("-----< Success:" & Success'Img & " >--------------" & GNAT.Source_Info.Source_Location);
-      Put_Line ("-----< Return_Code:" & Return_Code'Img & " >--------------" & GNAT.Source_Info.Source_Location);
+      Put_Line (GNAT.Source_Info.Source_Location & ": Success:" & Success'Img);
+      Put_Line (GNAT.Source_Info.Source_Location & ": Return_Code:" & Return_Code'Img);
       Ok := Ok or Success;
       Ok := Ok or (Return_Code = 0);
 
