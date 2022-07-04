@@ -12,3 +12,5 @@ test:
 installation:
 	gprbuild -p -j0 -P spawn_manager-test_installed.gpr
 
+edit:
+	gnatstudio -P  spawn_manager-tests.gpr -XLIBRARY_TYPE=static

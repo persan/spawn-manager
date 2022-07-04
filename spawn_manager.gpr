@@ -28,7 +28,7 @@ library project Spawn_Manager is
    package Compiler is
       for Switches ("ada") use
         ("-gnatwa",
-         "-gnat12",
+         "-gnat2012",
          "-gnaty",
          "-gnatyM128",
          "-fdata-sections",

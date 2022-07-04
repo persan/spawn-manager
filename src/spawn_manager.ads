@@ -87,9 +87,9 @@ private
    end record;
 
    type Spawn_Response is record
-      Success      : Boolean;
-      Return_Code  : aliased Integer;
-      Pid          : Process_Id;
+      Success      : Boolean := False;
+      Return_Code  : aliased Integer := 0;
+      Pid          : Process_Id := Invalid_Pid;
       Message      : Unbounded_String := Null_Unbounded_String;
    end record;
    function Is_Exit_Message (Request : Spawn_Request) return Boolean;
