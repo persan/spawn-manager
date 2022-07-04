@@ -60,6 +60,7 @@ tag:compile test
 		exit 1;\
 	fi
 	bin/helper
+	@echo "`bin/helper -v`-`date +%Y%m%d`"
 	grep "`bin/helper -v`-`date +%Y%m%d`" README.md >/dev/null
 	git tag  "`bin/helper -v`-`date +%Y%m%d`"
 	git push
