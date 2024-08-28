@@ -7,15 +7,19 @@ package Spawn_Manager.Client is
 --  Calls to methods in this package is strictly serialized and calling
 --  tasks will be blocked if another task is performing an operation.
 
+
    type Controler
-     (Server_Name : not null access constant String := Default_Server_Name'Access) is limited private with
-     Unreferenced_Objects => True;
+     (Server_Name : not null access constant String := Default_Server_Name'Access)
+   is new Ada.Finalization.Limited_Controlled with null record with Unreferenced_Objects => True;
    --  A singleton providing initialization and finalisation of the link
    --  to the spawn server.
    --  An object of this type must be created before any routines in
    --  this package are called.
    --  and it may not be declared in such a way that the object creation occures
    --  during elaboration of a shared library.
+
+   overriding procedure Initialize (Object : in out Controler);
+   overriding procedure Finalize   (Object : in out Controler);
 
    procedure Spawn
      (Program_Name : String;
@@ -68,10 +72,4 @@ private
    overriding procedure Initialize (Object : in out Key_Type);
    overriding procedure Finalize   (Object : in out Key_Type);
 
-   type Controler
-     (Server_Name : not null access constant String := Default_Server_Name'Access)
-     is new Ada.Finalization.Limited_Controlled with null record;
-
-   overriding procedure Initialize (Object : in out Controler);
-   overriding procedure Finalize   (Object : in out Controler);
 end Spawn_Manager.Client;

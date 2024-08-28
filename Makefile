@@ -17,9 +17,8 @@ help:
 compile:
 	gprbuild -p -P${PROJECT}-server.gpr -XLIBRARY_TYPE=static
 	gprbuild -p -P${PROJECT}.gpr        -XLIBRARY_TYPE=relocatable
-	gprbuild -p -Pbin/${PROJECT}-helper.gpr
-
-
+	gprbuild -p -P${PROJECT}.gpr        -XLIBRARY_TYPE=static
+	gprbuild -p -P${PROJECT}-helper.gpr
 
 
 variables:
@@ -42,7 +41,7 @@ uninstall:
 	-rm -rf ${DESTDIR}/${_docdir}
 
 
-test:
+test:compile
 	${MAKE} -C tests
 
 test-i:
@@ -54,7 +53,7 @@ Makefile.config:Makefile
 	@echo "TAG=$(shell ./version-helper.py)"  >>$@
 
 tag:compile test
-	@if [[ -n "`git status --porcelain`" ]] ; then\
+	@if [ -n "`git status --porcelain`" ] ; then\
 		echo "Folder is not clean";\
 		git status;\
 		exit 1;\

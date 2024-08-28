@@ -13,16 +13,19 @@ begin
    Debug := True;
    GNAT.Exception_Traces.Set_Trace_Decorator (GNAT.Traceback.Symbolic.Symbolic_Traceback'Access);
    GNAT.Exception_Traces.Trace_On (GNAT.Exception_Traces.Every_Raise);
+
    pragma Warnings (Off);
    if Proj_Version /= Version then
       raise Program_Error with "Version missmatch: Proj_Version=" & Proj_Version & ", Version=" & Version & ".";
    end if;
    pragma Warnings (On);
+
    Ls := GNAT.OS_Lib.Locate_Exec_On_Path ("cat");
    Args (1) := new String'("testdata.input");
    Args2 (1) := new String'("<Erronous-file>");
 
    Put_Line (GNAT.Source_Info.Source_Location);
+
    declare
       Return_Code  : Integer;
       Success      : Boolean;
@@ -32,7 +35,7 @@ begin
    begin
       Put_Line (GNAT.Source_Info.Source_Location);
       Client.Spawn (Ls.all, Args, Success);
-      Put_Line (GNAT.Source_Info.Source_Location);
+
       Put_Line (GNAT.Source_Info.Source_Location & ": Success:" & Success'Img);
       Ok := Success;
 
