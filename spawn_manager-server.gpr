@@ -8,7 +8,7 @@ project Spawn_Manager.Server is
    for Main use ("spawn_manager-server-main.adb");
 
    package Builder is
-      for Default_Switches ("ada") use Spawn_Manager.Compiler'Default_Switches ("ada");
+      for Default_Switches ("ada") use Spawn_Manager.Builder'Default_Switches ("ada");
       for Executable ("spawn_manager-server-main.adb") use "gnat-os_lib-spawn-manager-server";
    end Builder;
 
