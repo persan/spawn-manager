@@ -2,6 +2,7 @@
 -include Makefile.config
 
 PROJECT=spawn_manager
+SHELL=bash
 
 _docdir=${PREFIX}/share/${PROJECT}/doc
 all:compile test
@@ -53,17 +54,7 @@ Makefile.config:Makefile
 	@echo "TAG=$(shell ./version-helper.py)"  >>$@
 
 tag:compile test
-	@if [ -n "`git status --porcelain`" ] ; then\
-		echo "Folder is not clean";\
-		git status;\
-		exit 1;\
-	fi
-	bin/helper
-	@echo "`bin/helper -v`-`date +%Y%m%d`"
-	grep "`bin/helper -v`-`date +%Y%m%d`" README.md >/dev/null
-	git tag  "`bin/helper -v`-`date +%Y%m%d`"
-	git push
-	git push --tag
+	python3 check-tag-and-tag-if-allowed.py
 
 clean:
 	git clean -xdf

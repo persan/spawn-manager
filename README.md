@@ -3,6 +3,8 @@
 This component makes it possible to spawn subprocesses in tasking programs.
 
 # History
+### Version: 1.2.6-20260922
+* Make tagprocess les error-prone.
 
 ### Version: 1.2.5-20260922
 * Use GNATCOLL.Locks for scoped locks.
