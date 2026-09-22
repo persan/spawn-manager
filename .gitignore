@@ -1,5 +1,6 @@
 # Object file
 *.o
+.obj/
 
 # Ada Library Information
 *.cgpr
@@ -23,3 +24,4 @@ helper
 test.out
 test_log.txt
 .#*#
+.clang*
