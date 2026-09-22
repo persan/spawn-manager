@@ -1,16 +1,17 @@
-pragma Ada_2012;
+pragma Ada_2022;
 
 with Ada.Finalization;
-with GNAT.Semaphores;
-package Spawn_Manager.Client is
---  This package provides tasksafe variants of the GNAT.OS_Lib Spawn routines.
---  Calls to methods in this package is strictly serialized and calling
---  tasks will be blocked if another task is performing an operation.
 
+package Spawn_Manager.Client is
+   --  This package provides tasksafe variants of the GNAT.OS_Lib Spawn routines.
+   --  Calls to methods in this package is strictly serialized and calling
+   --  tasks will be blocked if another task is performing an operation.
 
    type Controler
-     (Server_Name : not null access constant String := Default_Server_Name'Access)
-   is new Ada.Finalization.Limited_Controlled with null record with Unreferenced_Objects => True;
+     (Server_Name : not null access constant String :=
+        Default_Server_Name'Access)
+   is new Ada.Finalization.Limited_Controlled with null record
+   with Unreferenced_Objects => True;
    --  A singleton providing initialization and finalisation of the link
    --  to the spawn server.
    --  An object of this type must be created before any routines in
@@ -18,8 +19,10 @@ package Spawn_Manager.Client is
    --  and it may not be declared in such a way that the object creation occures
    --  during elaboration of a shared library.
 
-   overriding procedure Initialize (Object : in out Controler);
-   overriding procedure Finalize   (Object : in out Controler);
+   overriding
+   procedure Initialize (Object : in out Controler);
+   overriding
+   procedure Finalize (Object : in out Controler);
 
    procedure Spawn
      (Program_Name : String;
@@ -27,8 +30,7 @@ package Spawn_Manager.Client is
       Success      : out Boolean);
 
    function Spawn
-     (Program_Name : String;
-      Args         : GNAT.OS_Lib.Argument_List) return Integer;
+     (Program_Name : String; Args : GNAT.OS_Lib.Argument_List) return Integer;
 
    procedure Spawn
      (Program_Name : String;
@@ -39,8 +41,7 @@ package Spawn_Manager.Client is
       Err_To_Out   : Boolean := True);
 
    function Non_Blocking_Spawn
-     (Program_Name : String;
-      Args         : Argument_List) return Process_Id;
+     (Program_Name : String; Args : Argument_List) return Process_Id;
 
    function Non_Blocking_Spawn
      (Program_Name : String;
@@ -55,21 +56,12 @@ package Spawn_Manager.Client is
    --  ==================================================================
 
    function Waitpid
-     (Pid      : Process_Id;
-      Status   : out Status_Kind;
-      Options  : Wait_Options) return Process_Id;
+     (Pid : Process_Id; Status : out Status_Kind; Options : Wait_Options)
+      return Process_Id;
    --  return status information pertaining to one of the caller's
    --  child processes. Various options permit status information
    --  to be obtained for child processes that have terminated or stopped.
    --  If status information is available for two or more child processes,
    --  the order in which their status is reported is unspecified.
-
-private
-
-   type Key_Type (Sema : not null access GNAT.Semaphores.Binary_Semaphore) is
-     new Ada.Finalization.Limited_Controlled with null record;
-   pragma Unreferenced_Objects (Key_Type);
-   overriding procedure Initialize (Object : in out Key_Type);
-   overriding procedure Finalize   (Object : in out Key_Type);
 
 end Spawn_Manager.Client;

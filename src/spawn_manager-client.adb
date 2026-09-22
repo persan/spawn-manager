@@ -1,8 +1,10 @@
-with GNAT.Sockets; use GNAT.Sockets;
+with GNAT.Sockets;    use GNAT.Sockets;
 with GNAT.Random_Numbers;
 with Ada.Directories; use Ada.Directories;
 with Ada.Command_Line;
 with GNAT.IO;
+with GNATCOLL.Locks;
+
 package body Spawn_Manager.Client is
 
    Initialized : Boolean := False;
@@ -11,7 +13,7 @@ package body Spawn_Manager.Client is
    Server      : Socket_Type;
    Channel     : Stream_Access;
    Id          : Long_Integer;
-   Lock        : aliased GNAT.Semaphores.Binary_Semaphore (True, GNAT.Semaphores.Default_Ceiling);
+   Lock        : aliased GNATCOLL.Locks.Mutual_Exclusion;
 
    function Image (P : GNAT.Sockets.Port_Type) return String;
    function Image (P : GNAT.Sockets.Port_Type) return String is
@@ -20,30 +22,35 @@ package body Spawn_Manager.Client is
       return Ret (Ret'First + 1 .. Ret'Last);
    end Image;
 
-   overriding procedure Initialize (Object : in out Controler) is
-      Args     : GNAT.OS_Lib.Argument_List_Access := new GNAT.OS_Lib.Argument_List (1 .. 3);
-      Pid      : GNAT.OS_Lib.Process_Id;
-      Exe      : GNAT.OS_Lib.String_Access;
-      Gen      : GNAT.Random_Numbers.Generator;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+   overriding
+   procedure Initialize (Object : in out Controler) is
+      Args : GNAT.OS_Lib.Argument_List_Access :=
+        new GNAT.OS_Lib.Argument_List (1 .. 3);
+      Pid  : GNAT.OS_Lib.Process_Id;
+      Exe  : GNAT.OS_Lib.String_Access;
+      Gen  : GNAT.Random_Numbers.Generator;
+      Key  : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if Initialized then
-         raise Program_Error with "only one controler per executabel is allowed";
+         raise Program_Error
+           with "only one controler per executabel is allowed";
       end if;
 
       GNAT.Random_Numbers.Reset (Gen);
       Id := GNAT.Random_Numbers.Random (Gen);
 
       declare
-         Cmd      : constant String := Ada.Command_Line.Command_Name;
-         Dir      : constant String := Containing_Directory (Cmd);
-         Tmp      : constant String := Current_Directory;
+         Cmd : constant String := Ada.Command_Line.Command_Name;
+         Dir : constant String := Containing_Directory (Cmd);
+         Tmp : constant String := Current_Directory;
       begin
 
          Set_Directory (Dir);
 
          declare
-            New_Name : constant String := Compose (Current_Directory, Object.Server_Name.all);
+            New_Name : constant String :=
+              Compose (Current_Directory, Object.Server_Name.all);
 
          begin
             GNAT.IO.Put_Line (New_Name);
@@ -59,7 +66,8 @@ package body Spawn_Manager.Client is
       end if;
 
       if Exe = null then
-         raise Program_Error with "Unable to locate server '" & Object.Server_Name.all & "'";
+         raise Program_Error
+           with "Unable to locate server '" & Object.Server_Name.all & "'";
       end if;
       Address.Addr := Loopback_Inet_Addr;
       Address.Port := Any_Port;
@@ -89,10 +97,12 @@ package body Spawn_Manager.Client is
       Initialized := True;
    end Initialize;
 
-   overriding procedure Finalize   (Object : in out Controler) is
+   overriding
+   procedure Finalize (Object : in out Controler) is
       pragma Unreferenced (Object);
-      Command  : Spawn_Request;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Command : Spawn_Request;
+      Key     : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if Initialized then
          Command.Id := Id;
@@ -117,7 +127,8 @@ package body Spawn_Manager.Client is
    is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -138,13 +149,12 @@ package body Spawn_Manager.Client is
    -----------
 
    function Spawn
-     (Program_Name : String;
-      Args         : GNAT.OS_Lib.Argument_List)
-      return Integer
+     (Program_Name : String; Args : GNAT.OS_Lib.Argument_List) return Integer
    is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -174,7 +184,8 @@ package body Spawn_Manager.Client is
    is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -196,11 +207,12 @@ package body Spawn_Manager.Client is
    end Spawn;
 
    function Non_Blocking_Spawn
-     (Program_Name : String;
-      Args         : Argument_List) return Process_Id is
+     (Program_Name : String; Args : Argument_List) return Process_Id
+   is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -215,17 +227,19 @@ package body Spawn_Manager.Client is
       Spawn_Request'Write (Channel, Command);
       Spawn_Response'Read (Channel, Response);
 
-      return  Response.Pid;
+      return Response.Pid;
    end Non_Blocking_Spawn;
 
    function Non_Blocking_Spawn
      (Program_Name : String;
       Args         : Argument_List;
       Output_File  : String;
-      Err_To_Out   : Boolean := True) return Process_Id is
+      Err_To_Out   : Boolean := True) return Process_Id
+   is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -248,7 +262,8 @@ package body Spawn_Manager.Client is
    procedure Wait_Process (Pid : out Process_Id; Success : out Boolean) is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -262,12 +277,13 @@ package body Spawn_Manager.Client is
    end Wait_Process;
 
    function Waitpid
-     (Pid      : Process_Id;
-      Status   : out Status_Kind;
-      Options  : Wait_Options) return Process_Id is
+     (Pid : Process_Id; Status : out Status_Kind; Options : Wait_Options)
+      return Process_Id
+   is
       Command  : Spawn_Request;
       Response : Spawn_Response;
-      Key      : Key_Type (Lock'Access); pragma Unreferenced (Key);
+      Key      : GNATCOLL.Locks.Scoped_Lock (Lock'Access);
+      pragma Unreferenced (Key);
    begin
       if not Initialized then
          raise Program_Error with "Uninitialized server not running";
@@ -281,16 +297,5 @@ package body Spawn_Manager.Client is
       Status := Status_Kind (Response.Return_Code);
       return Response.Pid;
    end Waitpid;
-
-
-   overriding procedure Initialize (Object : in out Key_Type) is
-   begin
-      Object.Sema.all.Seize;
-   end Initialize;
-
-   overriding procedure Finalize   (Object : in out Key_Type) is
-   begin
-      Object.Sema.all.Release;
-   end Finalize;
 
 end Spawn_Manager.Client;

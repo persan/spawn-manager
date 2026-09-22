@@ -1,4 +1,4 @@
-
+with "gnatcoll.gpr";
 library project Spawn_Manager is
 
    Version := "1.2.4";
